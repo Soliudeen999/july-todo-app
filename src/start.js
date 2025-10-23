@@ -4,6 +4,7 @@ const VerifyAppKey = require("./middleware/app_key_verifier");
 const mongoose = require("mongoose");
 
 const authEndpoints = require("./endpoints/auth");
+const todoEndpoints = require("./endpoints/todo");
 
 const app = expressApp();
 
@@ -14,6 +15,7 @@ app.get("/", function (request, response) {
 });
 
 app.use("/api", authEndpoints);
+app.use("/api", todoEndpoints);
 
 // app.use(VerifyAppKey);
 
