@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 
 const authEndpoints = require("./endpoints/auth");
 const todoEndpoints = require("./endpoints/todo");
+const profileEndpoints = require("./endpoints/profile");
 
 const app = expressApp();
 
@@ -16,6 +17,7 @@ app.get("/", function (request, response) {
 
 app.use("/api", authEndpoints);
 app.use("/api", todoEndpoints);
+app.use("/api", profileEndpoints);
 
 // app.use(VerifyAppKey);
 
