@@ -12,7 +12,14 @@ const generateToken = (payload = {}) => {
   return jwt.sign(payload, hashSecret);
 };
 
+const throw_if = (condition, error) => {
+  if (condition) {
+    throw error;
+  }
+};
+
 module.exports = {
   response,
   generateToken,
+  throw_if,
 };

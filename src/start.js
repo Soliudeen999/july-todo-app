@@ -2,17 +2,37 @@ require("dotenv").config();
 const expressApp = require("express");
 const VerifyAppKey = require("./middleware/app_key_verifier");
 const mongoose = require("mongoose");
+const UserModel = require("./models/user");
+const TodoModel = require("./models/todo");
 
 const authEndpoints = require("./endpoints/auth");
 const todoEndpoints = require("./endpoints/todo");
 const profileEndpoints = require("./endpoints/profile");
+const errorHandler = require("./middleware/error_handler");
 
 const app = expressApp();
 
 app.use(expressApp.json());
+app.use(setIdforEachRequest);
 
-app.get("/", function (request, response) {
-  return response.send("Hello Tofunmi the Backend Developer Using Express.js");
+function setIdforEachRequest(request, response, next) {
+  request.id = Date.now();
+  next();
+}
+
+app.set("twig options", {
+  allowAsync: true, // Allow asynchronous compiling
+  strict_variables: false,
+});
+
+app.get("/", async function (request, response) {
+  const users = await UserModel.find().exec();
+  return response.render("index.twig", { users: users });
+});
+
+app.get("/all-todos", async (req, res) => {
+  const todos = await TodoModel.find().exec();
+  return res.render("todos.twig", { todos: todos });
 });
 
 app.use("/api", authEndpoints);
@@ -53,6 +73,8 @@ app.use((request, response) => {
     message: "The requested resource was not found on this server.",
   });
 });
+
+app.use(errorHandler);
 
 // Create a db in ur mongo and use the db name here
 mongoose

@@ -1,43 +1,83 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const { response, generateToken } = require("../util/helpers");
+const { response, generateToken, throw_if } = require("../util/helpers");
 const TodoModel = require("./../models/todo");
-const { body, validationResult } = require("express-validator");
+const { validationResult } = require("express-validator");
+const isAuthenticated = require("../middleware/is_authenticated");
+
+const {
+  storeTodoRequest,
+  updateTodoRequest,
+} = require("../requests/todo_request");
+
+const ValidationError = require("./../errors/validation_error");
 
 const app = express.Router();
 
+app.use(isAuthenticated);
+
 app.get("/todos", async (req, res) => {
-  const todos = await TodoModel.find().populate("user");
+  const todos = await TodoModel.find({
+    user: req.user,
+  }).populate("user");
   return response(res, "Login Successful", { todos });
 });
 
-app.post(
-  "/todos",
-  [
-    body("title").notEmpty().withMessage("Title must be string"),
-    body("desc").notEmpty().withMessage("Description must be string"),
-    body("due_at").isDate(),
-  ],
-  async (req, res) => {
-    const { title, desc, due_at } = req.body;
+app.post("/todos", storeTodoRequest, async (req, res) => {
+  const errors = validationResult(req);
 
-    const result = validationResult(req);
+  throw_if(!errors.isEmpty(), new ValidationError(errors.array()));
 
-    if (!result.isEmpty()) {
-      return response(res, "Validation Error", result, 422);
-    }
+  const { title, desc, due_at } = req.body;
 
-    const newTodo = new TodoModel({
-      title,
-      desc,
-      due_at,
-      user: req.user,
+  const newTodo = new TodoModel({
+    title,
+    desc,
+    due_at,
+    user: req.user,
+  });
+
+  await newTodo.save();
+
+  return response(res, "Todo created successfully", newTodo, 201);
+});
+
+app.put("/todos/:id", updateTodoRequest, async (req, res) => {
+  const todoId = req.params.id;
+
+  const todo = await TodoModel.findById(todoId).exec();
+
+  if (!todo)
+    return res.status(404).json({
+      message: "Resource not found",
     });
 
-    await newTodo.save();
+  const { title, desc, due_at } = req.body;
 
-    return response(res, "Todo created successfully", newTodo, 201);
-  }
-);
+  todo.title = title;
+  todo.desc = desc;
+  todo.due_at = due_at;
 
+  todo.save();
+
+  return res.json({
+    message: "Todo retrieved successfully",
+    data: todo,
+  });
+});
+
+app.delete("/todos/:id", async (req, res) => {
+  const todoId = req.params.id;
+
+  const todo = await TodoModel.findById(todoId).exec();
+
+  if (!todo)
+    return res.status(404).json({
+      message: "Resource not found",
+    });
+
+  await TodoModel.deleteOne({ _id: todoId }).exec();
+
+  return res.status(204).json({});
+});
 module.exports = app;

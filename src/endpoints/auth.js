@@ -1,10 +1,21 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const { response, generateToken } = require("../util/helpers");
+const { response, generateToken, throw_if } = require("../util/helpers");
 const UserModel = require("./../models/user");
 const { body, validationResult } = require("express-validator");
-
+const { RegisterRequest } = require("../requests/auth_request");
+const {
+  index,
+  getAllNGNBanks,
+  payNow,
+} = require("./../controller/test_controller");
 const app = express.Router();
+
+app.get("/test-controller", index);
+
+app.get("/get-all-ngn-banks", getAllNGNBanks);
+
+app.get("/pay-now/:amount", payNow);
 
 app.post(
   "/login",
@@ -40,34 +51,24 @@ app.post(
   }
 );
 
-app.post(
-  "/register",
-  [
-    body("email").isEmail().withMessage("Invalid Email Address"),
-    body("first_name").notEmpty().withMessage("Name must be string"),
-    body("last_name").notEmpty().withMessage("Name must be string"),
-    body("password").isStrongPassword(),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
+app.post("/register", RegisterRequest, async (req, res) => {
+  const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-      return response(res, "Validation Error", errors, 422);
-    }
-    const { first_name, last_name, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 12);
+  throw_if(!errors.isEmpty(), new ValidationError(errors.array()));
 
-    const newUser = new UserModel({
-      first_name,
-      last_name,
-      email,
-      password: hashedPassword,
-    });
+  const { first_name, last_name, email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 12);
 
-    await newUser.save();
+  const newUser = new UserModel({
+    first_name,
+    last_name,
+    email,
+    password: hashedPassword,
+  });
 
-    return response(res, "User registered successfully", newUser);
-  }
-);
+  await newUser.save();
+
+  return response(res, "User registered successfully", newUser);
+});
 
 module.exports = app;

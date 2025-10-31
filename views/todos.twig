@@ -1,0 +1,14 @@
+<html> 
+    <head>
+        <title>Todos List</title>
+    </head>
+    <body>
+        <h1>This Page is for todos</h1>
+        <h2>Todos in the System </h2>
+        <ul>
+            {% for todo in todos %}
+                <li>{{ todo.title }} - {{ todo.desc }}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

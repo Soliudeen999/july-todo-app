@@ -1,0 +1,14 @@
+<html> 
+    <head>
+        <title>User List</title>
+    </head>
+    <body>
+        <h1>Hello Tofunmi the Backend Developer Using Express.js</h1>
+        <h2>Users in the system</h2>
+        <ul>
+            {% for user in users %}
+                <li>{{ user.first_name }} {{ user.last_name }}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
