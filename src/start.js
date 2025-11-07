@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const UserModel = require("./models/user");
 const TodoModel = require("./models/todo");
 
+const callbackEndpoints = require("./endpoints/callbacks");
 const authEndpoints = require("./endpoints/auth");
 const todoEndpoints = require("./endpoints/todo");
 const profileEndpoints = require("./endpoints/profile");
@@ -24,6 +25,8 @@ app.set("twig options", {
   allowAsync: true, // Allow asynchronous compiling
   strict_variables: false,
 });
+
+app.use(callbackEndpoints);
 
 app.get("/", async function (request, response) {
   const users = await UserModel.find().exec();

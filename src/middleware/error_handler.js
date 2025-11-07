@@ -1,14 +1,6 @@
 const ValidationError = require("./../errors/validation_error");
 
 const errorHandler = (error, request, response, next) => {
-  console.log(error);
-
-  if (typeof error === "object") {
-    return response.status(500).json({
-      response_status: "error",
-      message: error.message,
-    });
-  }
   if (error instanceof ValidationError) {
     let errorList = error.errors;
 
@@ -31,6 +23,13 @@ const errorHandler = (error, request, response, next) => {
       response_status: "error",
       message: error.message || "Validation Error",
       errors: errors,
+    });
+  }
+
+  if (typeof error === "object") {
+    return response.status(500).json({
+      response_status: "error",
+      message: error.message,
     });
   }
 

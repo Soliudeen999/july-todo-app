@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const { response, generateToken, throw_if } = require("../util/helpers");
 const TodoModel = require("./../models/todo");
-const { validationResult } = require("express-validator");
+const { validationResult, param } = require("express-validator");
 const isAuthenticated = require("../middleware/is_authenticated");
 
 const {
@@ -44,10 +44,11 @@ app.post("/todos", storeTodoRequest, async (req, res) => {
 
 app.put("/todos/:id", updateTodoRequest, async (req, res) => {
   const todoId = req.params.id;
+  const user = req.user;
 
   const todo = await TodoModel.findById(todoId).exec();
 
-  if (!todo)
+  if (!todo || todo.user.id !== user.id)
     return res.status(404).json({
       message: "Resource not found",
     });
@@ -65,13 +66,41 @@ app.put("/todos/:id", updateTodoRequest, async (req, res) => {
     data: todo,
   });
 });
+app.put(
+  "/todos/:id/:status",
+  [param("status").isIn(["completed", "pending", "active"])],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    throw_if(!errors.isEmpty(), new ValidationError(errors.array()));
+
+    const todoId = req.params.id;
+    const status = req.params.status;
+    const user = req.user;
+
+    const todo = await TodoModel.findById(todoId).populate("user").exec();
+
+    if (!todo || todo.user.id !== user.id)
+      return res.status(404).json({
+        message: "Resource not found",
+      });
+
+    todo.status = status;
+    todo.save();
+
+    return res.json({
+      message: "Todo status change successfully",
+      data: todo,
+    });
+  }
+);
 
 app.delete("/todos/:id", async (req, res) => {
   const todoId = req.params.id;
-
+  const user = req.user;
   const todo = await TodoModel.findById(todoId).exec();
 
-  if (!todo)
+  if (!todo || todo.user.id !== user.id)
     return res.status(404).json({
       message: "Resource not found",
     });
@@ -80,4 +109,5 @@ app.delete("/todos/:id", async (req, res) => {
 
   return res.status(204).json({});
 });
+
 module.exports = app;

@@ -6,8 +6,11 @@ const userTable = mongoose.Schema({
   last_name: String,
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  email_verified_at: { type: Date, required: false },
   created_at: { type: Date, default: Date.now() },
   is_active: { type: Boolean, default: true },
+  is_subscribed: { type: Boolean, default: false },
+  credit: { type: Number, default: 0 },
 });
 
 userTable.methods.comparePassword = (password) => {

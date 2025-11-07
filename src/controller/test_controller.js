@@ -37,11 +37,10 @@ const payNow = async (req, res) => {
   const paySt = new Paystack(process.env.PAYSTACK_SECRET_KEY);
 
   const response = await paySt.transaction.initialize({
-    email: "isiah@gmail.com",
+    email: "bola@gmail.com",
     amount,
   });
 
-  console.log(response);
   return res.json({
     message: "Go to pay now",
     data: response,
