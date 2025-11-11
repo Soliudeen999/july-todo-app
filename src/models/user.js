@@ -11,6 +11,7 @@ const userTable = mongoose.Schema({
   is_active: { type: Boolean, default: true },
   is_subscribed: { type: Boolean, default: false },
   credit: { type: Number, default: 0 },
+  profile_picture: { type: String, required: false },
 });
 
 userTable.methods.comparePassword = (password) => {

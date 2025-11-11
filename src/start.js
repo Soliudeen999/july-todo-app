@@ -13,7 +13,10 @@ const errorHandler = require("./middleware/error_handler");
 
 const app = expressApp();
 
+app.use("/uploads", expressApp.static("uploads"));
+
 app.use(expressApp.json());
+
 app.use(setIdforEachRequest);
 
 function setIdforEachRequest(request, response, next) {
