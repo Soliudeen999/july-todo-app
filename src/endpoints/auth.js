@@ -8,6 +8,7 @@ const {
   index,
   getAllNGNBanks,
   payNow,
+  getAllNGNBankWithRedis,
 } = require("./../controller/test_controller");
 const ValidationError = require("../errors/validation_error");
 const mailer = require("../services/mail_service");
@@ -16,6 +17,7 @@ const app = express.Router();
 app.get("/test-controller", index);
 
 app.get("/get-all-ngn-banks", getAllNGNBanks);
+app.get("/get-all-ngn-banks-redis", getAllNGNBankWithRedis);
 
 app.get("/pay-now/:amount", payNow);
 

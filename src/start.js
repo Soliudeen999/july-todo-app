@@ -24,6 +24,16 @@ function setIdforEachRequest(request, response, next) {
   next();
 }
 
+app.get("/fetch-banks-users-todos", async (rreq, res) => {
+  // Logic to banks
+  // Logic to fetch users
+  // Logic to fetch todos
+  // 10MB
+  // Avaliable 50MB
+  // 100000  users
+  // Caching(File, db, memory);
+});
+
 app.set("twig options", {
   allowAsync: true, // Allow asynchronous compiling
   strict_variables: false,
