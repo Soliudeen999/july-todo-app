@@ -66,11 +66,6 @@ app.post(
 app.post(
   "/update-profile-picture-manual",
   upload.single("profile_picture"),
-  [
-    // body("profile_picture").custom((req, res) => {
-    //   // console.log("file", req.file);
-    // }),
-  ],
   async (req, res) => {
     const user = req.user;
 
